@@ -7,9 +7,7 @@ import com.cflint.plugins.Context;
 import cfml.parsing.cfscript.script.CFFuncDeclStatement;
 import cfml.parsing.cfscript.script.CFScriptStatement;
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class FunctionLengthChecker extends LengthChecker {
     private static final int LENGTH_THRESHOLD = 100;
 

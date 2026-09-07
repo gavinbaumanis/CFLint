@@ -17,9 +17,7 @@ import cfml.parsing.cfscript.CFNewExpression;
 import cfml.parsing.cfscript.CFVarDeclExpression;
 import net.htmlparser.jericho.Attribute;
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class VariableNameChecker extends CFLintScannerAdapter {
     /**
      * Minimum number of characters for an variable name.

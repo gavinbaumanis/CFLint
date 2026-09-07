@@ -8,9 +8,7 @@ import com.cflint.plugins.Context;
 import cfml.parsing.cfscript.script.CFExpressionStatement;
 import cfml.parsing.cfscript.script.CFScriptStatement;
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class ArrayNewChecker extends CFLintScannerAdapter {
 
     

@@ -5,10 +5,8 @@ import com.cflint.plugins.CFLintScannerAdapter;
 import com.cflint.plugins.Context;
 
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
 // Deprecate?
-@Extension
 public class ScriptTagChecker extends CFLintScannerAdapter {
 
     

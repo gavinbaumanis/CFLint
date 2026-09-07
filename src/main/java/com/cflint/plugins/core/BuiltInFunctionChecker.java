@@ -6,12 +6,10 @@ import com.cflint.plugins.Context;
 
 import cfml.parsing.cfscript.CFExpression;
 import cfml.parsing.cfscript.CFFunctionExpression;
-import ro.fortsoft.pf4j.Extension;
 
 /**
  * isDate() is too permissive. Avoid it.
  */
-@Extension
 public class BuiltInFunctionChecker extends CFLintScannerAdapter {
 
     

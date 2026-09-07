@@ -13,12 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cfml.parsing.cfscript.script.CFFuncDeclStatement;
 import cfml.parsing.cfscript.script.CFScriptStatement;
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
 /**
  * Avoid using function X checker.
  */
-@Extension
 public class FunctionCollisionChecker extends CFLintScannerAdapter {
 
 	ArrayList<String> functions = new ArrayList<String>();
@@ -51,6 +49,10 @@ public class FunctionCollisionChecker extends CFLintScannerAdapter {
 	public void expression(final CFScriptStatement expression, final Context context, final BugList bugs) {
 		if (expression instanceof CFFuncDeclStatement) {
 			final CFFuncDeclStatement functionExpression = (CFFuncDeclStatement) expression;
+			// Arrow / anonymous decls have a null name in cfparser.
+			if (functionExpression.getName() == null) {
+				return;
+			}
 			final String name = functionExpression.getName().getFullName();
 			if (functions.contains(name)) {
 				context.addMessage("FUNCTION_NAME_COLLISION", name, this, null, null, functionExpression.getName());

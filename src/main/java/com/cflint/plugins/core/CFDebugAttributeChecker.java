@@ -8,9 +8,7 @@ import com.cflint.plugins.Context;
 import net.htmlparser.jericho.Attribute;
 import net.htmlparser.jericho.Attributes;
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class CFDebugAttributeChecker extends CFLintScannerAdapter {
 
     

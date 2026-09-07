@@ -8,34 +8,22 @@ CFLint is a static code analysis tool for CFML (ColdFusion Markup Language). It 
 
 ## Build & test commands
 
-Gradle is the primary build (Maven is deprecated but still present via `pom.xml`). Requires Java 21+ (toolchain pinned to 21; GraalVM native build needs GraalVM 25, see below).
+Gradle is the primary build (Maven is still present via `pom.xml`). This branch is **Java 11 only**: compiler, toolchain, CI, and the Gradle daemon all use JDK 11. It pins cfparser `11.0.0` (cfparser `java-11`). The wrapper is Gradle **8.14.5**, the newest 8.x that still runs on a Java 11 JVM.
 
-The baseline moved from 11 to 21 in 2026-08, forced by upstream: cfparser now compiles at Java 21, and class file version 65 cannot be loaded by an 11 JVM. Four places had to move together — `maven.compiler.source`/`target` in `pom.xml`, the toolchain `languageVersion` in `build.gradle`, and the runner `java-version` in both `gradle.yml` and `publish.yml`. `native-release.yml` was already on 25 and needed nothing.
+Keep these four places on 11 together: `maven.compiler.source`/`target` in `pom.xml`, toolchain `languageVersion` in `build.gradle`, and `java-version` in `gradle.yml` and `publish.yml`. There is no GraalVM native build on this line.
+
+Until cfparser `11.0.0` is on GitHub Packages, install it from a cfparser `java-11` checkout (`mvn clean install`) so `mavenLocal()` resolves it.
 
 ```bash
 ./gradlew build              # compile + test + jar
 ./gradlew test               # run the JUnit test suite
-./gradlew jacocoTestReport    # generate HTML/XML coverage report under build/reports/jacoco (run after test)
-./gradlew fatJar             # build the "-all" shaded jar (includes all deps)
-./gradlew nativeCompile      # build a GraalVM native binary (requires a GraalVM 25 JAVA_HOME)
+./gradlew jacocoTestReport    # HTML/XML coverage under build/reports/jacoco (after test)
+./gradlew fatJar             # shaded "-all" jar
 ```
 
 Maven equivalent: `mvn clean install`.
 
-**Local environment note:** Gradle 9.6.1 (the pinned wrapper version) can't run its own daemon on very new JDKs — on this machine the system default was JDK 26, which failed at Gradle *configuration* time (unrelated to this project's own Java 11 toolchain pin, which only affects what compiles/runs the actual code). Fixed by pinning the Gradle daemon JVM in `~/.gradle/gradle.properties` (`org.gradle.java.home=<path to a JDK ≤ 21>`) — a machine-local, untracked file, so it doesn't affect CI or other contributors. If `./gradlew` ever fails at configuration time again with an internal Gradle class-instantiation error, this is the first thing to check (`./gradlew -v` prints which JVM the daemon actually picked and why).
-
-**Native build (`nativeCompile`) locally:** none of the JDKs registered with macOS (`/usr/libexec/java_home -V`) are GraalVM distributions, so `nativeCompile` needs `JAVA_HOME` pointed explicitly at a real GraalVM install for that one command (separate from the `org.gradle.java.home` daemon pin above — the native-image-plugin reads `JAVA_HOME` itself, independently of the daemon JVM). On this machine GraalVM CE 25.0.2 is installed via SDKMAN at `~/.sdkman/candidates/java/25.0.2-graalce` (SDKMAN JDKs aren't visible to `java_home -V`, which is why they're easy to miss/forget about; GraalVM CE 21.0.2 is also still installed there from before, unused now):
-
-```bash
-export JAVA_HOME=/Users/garethedwards/.sdkman/candidates/java/25.0.2-graalce
-./gradlew nativeCompile
-```
-
-`org.graalvm.buildtools.native` is pinned to **1.1.3** (bumped from 0.10.4 in 2026-07). That bump requires GraalVM 25+ specifically — the plugin's reachability-metadata repository schema is newer than what GraalVM CE's JDK-21 line ever shipped (GraalVM CE for JDK 21 is frozen at 21.0.2 — confirmed via `graalvm/graalvm-ce-builds` releases, no newer 21.x patch exists or is coming). Running `nativeCompile` with plugin 1.1.3 against GraalVM 21.0.2 fails with "GraalVM installation does not [support the reachability-metadata schema]" — if that error resurfaces, it means `JAVA_HOME` is pointed at the wrong (too-old) GraalVM, not a real regression.
-
-CI's `native-release.yml` was updated to match (`graalvm/setup-graalvm@v1` now requests `java-version: '25'`, not `'21'`) — this had to change in lockstep with the plugin bump in `build.gradle`, since both are shared/committed and CI would otherwise hit the exact same schema-mismatch failure on the next GitHub release.
-
-The plugin bump did **not** fix the "Using a Project object as a dependency notation" Gradle-10-deprecation warning noted above — that's a separate, still-unfixed issue in the plugin's own code (confirmed present in 1.1.3 too, just at a different internal line number). GraalVM version is unrelated to that warning; only an upstream plugin fix would address it.
+**Local environment note:** Point `JAVA_HOME` at JDK 11 for both `./gradlew` and `mvn`. If the daemon picks the wrong JVM, set `org.gradle.java.home` in `~/.gradle/gradle.properties` (machine-local) and check with `./gradlew -v`.
 
 Running the CLI after building:
 
@@ -116,9 +104,9 @@ Configuration is resolved through a chain of `CFLintConfiguration` implementatio
 - `com.cflint.ant.CFLintTask` — an Ant task wrapper.
 - Output formats (`HTMLOutput`, `JSONOutput`, `XMLOutput`, `TextOutput`, `com.cflint.xml.stax.*` marshallers) all render from the same `BugList`/`CFLintStats` produced by a scan; the FindBugs XML flavor is produced via XSLT (`src/main/resources/findbugs/cflint-to-findbugs.xsl`) rather than a marshaller class.
 
-### JDK 25 startup crash (fixed)
+### Entity size limit on newer JDKs
 
-`com.cflint.CFLint` has a static initializer that raises `jdk.xml.totalEntitySizeLimit` to 10,000,000 (unless the caller already set it) before any parsing happens. Without it, on JDK 25 (confirmed on GraalVM CE 25.0.2, both the plain jar and native builds), the very first `new CFLint(...)`/`CFLintAPI` construction throws `SAXParseException: JAXP00010004 ... accumulated size of entities is "100,003" ... exceeded ... "100,000"` while loading the bundled `cfml.dictionary` XML resources (`cfml.dictionary.SyntaxDictionary.loadDictionary`, e.g. `parameter_html_event_mouse.ixml`) — this happens at startup regardless of what's being scanned, not per-file. JDK 21 doesn't hit this (its effective default is higher); something about JDK 25's XML defaults tightened enough to trip on this bundled resource's entity expansion, which sits just barely over the old 100,000 threshold. This is a real fix, not a workaround — it's in `com.cflint.CFLint` itself, so it applies to every entry point (CLI, `CFLintAPI`, Ant task) and both the Gradle and Maven builds, without needing a `-D` flag at invocation time. The right long-term fix is probably upstream in `cfml.dictionary` (its XML likely over-uses entity references), but this unblocks all consumers of this library in the meantime.
+`com.cflint.CFLint` raises `jdk.xml.totalEntitySizeLimit` to 10,000,000 at class init (unless already set). Without that, JDK 25+ can fail loading `cfml.dictionary` XML with `SAXParseException: JAXP00010004` (entity expansion past the old 100,000 default). The bump is harmless on Java 11 and keeps the same binary usable on newer runtimes.
 
 ### Performance
 

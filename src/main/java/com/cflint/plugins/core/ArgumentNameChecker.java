@@ -10,12 +10,10 @@ import cfml.parsing.cfscript.script.CFFuncDeclStatement;
 import cfml.parsing.cfscript.script.CFFunctionParameter;
 import cfml.parsing.cfscript.script.CFScriptStatement;
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
 /**
  * Checks that function arguments are named correctly.
  */
-@Extension
 public class ArgumentNameChecker extends CFLintScannerAdapter {
     /**
      * Name of minimum length parameter.

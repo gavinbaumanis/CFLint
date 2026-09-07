@@ -9,12 +9,10 @@ import com.cflint.plugins.Context;
 import cfml.parsing.cfscript.script.CFFuncDeclStatement;
 import cfml.parsing.cfscript.script.CFScriptStatement;
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
 /**
  * Check if a function or method name is valid.
  */
-@Extension
 public class MethodNameChecker extends CFLintScannerAdapter {
 
     /**
@@ -110,6 +108,10 @@ public class MethodNameChecker extends CFLintScannerAdapter {
      */
     public void checkNameForBugs(final Context context, final int line, final int offset) {
         final String method = context.getFunctionName();
+        // Arrow / anonymous decls have no name.
+        if (method == null || method.isEmpty()) {
+            return;
+        }
 
         try {
             parseParameters(context.getConfiguration());

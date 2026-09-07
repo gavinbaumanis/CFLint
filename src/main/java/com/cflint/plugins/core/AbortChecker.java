@@ -6,9 +6,7 @@ import com.cflint.plugins.Context;
 
 import cfml.parsing.cfscript.script.CFAbortStatement;
 import cfml.parsing.cfscript.script.CFScriptStatement;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class AbortChecker extends CFLintScannerAdapter {
     
     /** 

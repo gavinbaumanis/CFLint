@@ -6,9 +6,7 @@ import com.cflint.plugins.CFLintScannerAdapter;
 import com.cflint.plugins.Context;
 
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class CFQueryChecker extends CFLintScannerAdapter {
     private static final String NEVER_USE_QUERY_IN_CFM = "NEVER_USE_QUERY_IN_CFM";
 
