@@ -11,9 +11,7 @@ import cfml.CFSCRIPTLexer;
 import cfml.parsing.cfscript.CFBinaryExpression;
 import cfml.parsing.cfscript.script.CFExpressionStatement;
 import cfml.parsing.cfscript.script.CFScriptStatement;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class CFCompareVsAssignChecker extends CFLintScannerAdapter {
     private static final List<Integer> TOKENS = Arrays.asList(CFSCRIPTLexer.EQUALSEQUALSOP, CFSCRIPTLexer.LT, CFSCRIPTLexer.LTE,
             CFSCRIPTLexer.GT, CFSCRIPTLexer.GTE, CFSCRIPTLexer.OR, CFSCRIPTLexer.OROPERATOR, CFSCRIPTLexer.EQV,

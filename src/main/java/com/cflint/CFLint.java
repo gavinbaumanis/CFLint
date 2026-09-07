@@ -59,6 +59,7 @@ import cfml.CFSCRIPTParser;
 import cfml.parsing.CFMLParser;
 import cfml.parsing.CFMLSource;
 import cfml.parsing.ParserTag;
+import cfml.parsing.cfscript.CFAnonymousFunctionExpression;
 import cfml.parsing.cfscript.CFArrayExpression;
 import cfml.parsing.cfscript.CFAssignmentExpression;
 import cfml.parsing.cfscript.CFExpression;
@@ -1326,6 +1327,13 @@ public class CFLint implements IErrorReporter {
                             process(aryExpr.getElements().get(0), elem, subContext);
                         }
                     }
+                }
+            } else if (expression instanceof CFAnonymousFunctionExpression) {
+                // decomposeExpression() is empty for arrows/anonymous functions; walk the nested decl.
+                final CFFuncDeclStatement anonDecl =
+                        ((CFAnonymousFunctionExpression) expression).getFuncDeclStatement();
+                if (anonDecl != null) {
+                    process(anonDecl, context);
                 }
             } else if (expression instanceof CFFunctionExpression && tagInfo.isTag(((CFFunctionExpression)expression).getFunctionName())){
                 final CFFunctionExpression functionExpr = (CFFunctionExpression)expression;

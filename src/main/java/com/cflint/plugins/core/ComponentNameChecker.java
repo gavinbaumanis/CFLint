@@ -9,12 +9,10 @@ import com.cflint.plugins.Context;
 import cfml.parsing.cfscript.script.CFCompDeclStatement;
 import cfml.parsing.cfscript.script.CFScriptStatement;
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
 /**
  * Check is a component name is valid.
  */
-@Extension
 public class ComponentNameChecker extends CFLintScannerAdapter {
     /**
      * Minimum number of characters for an component name.

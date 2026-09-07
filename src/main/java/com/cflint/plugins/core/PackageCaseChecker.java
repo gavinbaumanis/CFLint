@@ -16,9 +16,7 @@ import com.cflint.plugins.Context.ContextMessage;
 import cfml.parsing.cfscript.CFExpression;
 import cfml.parsing.cfscript.CFFunctionExpression;
 import cfml.parsing.cfscript.CFNewExpression;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class PackageCaseChecker extends CFLintScannerAdapter implements CFLintSet {
 
     private final Map<String, HashSet<String[]>> componentRegister = new HashMap<>();

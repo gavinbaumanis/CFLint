@@ -11,9 +11,7 @@ import cfml.parsing.cfscript.CFExpression;
 import cfml.parsing.cfscript.CFLiteral;
 import cfml.parsing.cfscript.script.CFCompDeclStatement;
 import cfml.parsing.cfscript.script.CFScriptStatement;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class LiteralChecker extends CFLintScannerAdapter {
     protected static final int REPEAT_THRESHOLD = 3;
     protected static final int WARNING_THRESHOLD = 5;

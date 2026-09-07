@@ -5,9 +5,7 @@ import com.cflint.plugins.CFLintScannerAdapter;
 import com.cflint.plugins.Context;
 
 import net.htmlparser.jericho.Element;
-import ro.fortsoft.pf4j.Extension;
 
-@Extension
 public class CFTagCaseChecker extends CFLintScannerAdapter {
     private static final String CFTAG_PREFERRED_CASE = "CFTAG_PREFERRED_CASE";
 
